@@ -91,7 +91,7 @@ If you find this project valuable and would like to support its continued develo
 
 - 💖 **One-time Donations**
   - [Buy me a coffee](https://www.buymeacoffee.com/arosck1) ☕ - For a quick thank you
-  - [PayPal](https://paypal.me/arosck1) 💳 - Flexible one-time contributions
+  - [PayPal](https://paypal.me/soukoutari) 💳 - Flexible one-time contributions
   
 - 🌟 **Recurring Support** 
   - [GitHub Sponsors](https://github.com/sponsors/arosck1) 💝 - Support ongoing development
