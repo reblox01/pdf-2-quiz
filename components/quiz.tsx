@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -9,6 +9,7 @@ import {
   X,
   RefreshCw,
   FileText,
+  Keyboard,
 } from "lucide-react";
 import QuizScore from "./score";
 import QuizReview from "./quiz-overview";
@@ -29,46 +30,72 @@ const QuestionCard: React.FC<{
 }> = ({ question, selectedAnswer, onSelectAnswer, showCorrectAnswer }) => {
   const answerLabels = ["A", "B", "C", "D"];
 
+  const handleKeyPress = useCallback((e: KeyboardEvent) => {
+    if (!showCorrectAnswer) {
+      const key = e.key.toUpperCase();
+      if (answerLabels.includes(key)) {
+        onSelectAnswer(key);
+      }
+    }
+  }, [onSelectAnswer, showCorrectAnswer, answerLabels]);
+
+  useEffect(() => {
+    window.addEventListener("keydown", handleKeyPress);
+    return () => window.removeEventListener("keydown", handleKeyPress);
+  }, [handleKeyPress]);
+
   return (
-    <div className="space-y-6">
+    <motion.div 
+      className="space-y-6"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
+      transition={{ duration: 0.3 }}
+    >
       <h2 className="text-lg font-semibold leading-tight">
         {question.question}
       </h2>
       <div className="grid grid-cols-1 gap-4">
         {question.options.map((option, index) => (
-          <Button
+          <motion.div
             key={index}
-            variant={
-              selectedAnswer === answerLabels[index] ? "secondary" : "outline"
-            }
-            className={`h-auto py-6 px-4 justify-start text-left whitespace-normal ${
-              showCorrectAnswer && answerLabels[index] === question.answer
-                ? "bg-green-600 hover:bg-green-700"
-                : showCorrectAnswer &&
-                    selectedAnswer === answerLabels[index] &&
-                    selectedAnswer !== question.answer
-                  ? "bg-red-600 hover:bg-red-700"
-                  : ""
-            }`}
-            onClick={() => onSelectAnswer(answerLabels[index])}
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: index * 0.1 }}
           >
-            <span className="text-lg font-medium mr-4 shrink-0">
-              {answerLabels[index]}
-            </span>
-            <span className="flex-grow">{option}</span>
-            {(showCorrectAnswer && answerLabels[index] === question.answer) ||
-              (selectedAnswer === answerLabels[index] && (
+            <Button
+              variant={
+                selectedAnswer === answerLabels[index] ? "secondary" : "outline"
+              }
+              className={`h-auto py-6 px-4 justify-start text-left whitespace-normal w-full
+                ${
+                  showCorrectAnswer && answerLabels[index] === question.answer
+                    ? "bg-green-600 hover:bg-green-700 text-white"
+                    : showCorrectAnswer &&
+                      selectedAnswer === answerLabels[index] &&
+                      selectedAnswer !== question.answer
+                      ? "bg-red-600 hover:bg-red-700 text-white"
+                      : ""
+                }`}
+              onClick={() => onSelectAnswer(answerLabels[index])}
+            >
+              <span className="text-lg font-medium mr-4 shrink-0">
+                {answerLabels[index]}
+              </span>
+              <span className="flex-grow">{option}</span>
+              {showCorrectAnswer && answerLabels[index] === question.answer && (
                 <Check className="ml-2 shrink-0 text-white" size={20} />
-              ))}
-            {showCorrectAnswer &&
-              selectedAnswer === answerLabels[index] &&
-              selectedAnswer !== question.answer && (
-                <X className="ml-2 shrink-0 text-white" size={20} />
               )}
-          </Button>
+              {showCorrectAnswer &&
+                selectedAnswer === answerLabels[index] &&
+                selectedAnswer !== question.answer && (
+                  <X className="ml-2 shrink-0 text-white" size={20} />
+                )}
+            </Button>
+          </motion.div>
         ))}
       </div>
-    </div>
+    </motion.div>
   );
 };
 
@@ -132,23 +159,60 @@ export default function Quiz({
 
   const currentQuestion = questions[currentQuestionIndex];
 
+  const handleKeyNavigation = useCallback((e: KeyboardEvent) => {
+    if (e.key === "ArrowLeft" && currentQuestionIndex > 0) {
+      handlePreviousQuestion();
+    } else if (
+      e.key === "ArrowRight" &&
+      currentQuestionIndex < questions.length - 1 &&
+      answers[currentQuestionIndex] !== null
+    ) {
+      handleNextQuestion();
+    } else if (
+      e.key === "Enter" &&
+      currentQuestionIndex === questions.length - 1 &&
+      answers[currentQuestionIndex] !== null &&
+      !isSubmitted
+    ) {
+      handleSubmit();
+    }
+  }, [currentQuestionIndex, questions.length, answers, isSubmitted]);
+
+  useEffect(() => {
+    window.addEventListener("keydown", handleKeyNavigation);
+    return () => window.removeEventListener("keydown", handleKeyNavigation);
+  }, [handleKeyNavigation]);
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       <main className="container mx-auto px-4 py-12 max-w-4xl">
-        <h1 className="text-3xl font-bold mb-8 text-center text-foreground">
+        <motion.h1 
+          className="text-3xl font-bold mb-8 text-center text-foreground"
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
           {title}
-        </h1>
+        </motion.h1>
+        
         <div className="relative">
-          {!isSubmitted && <Progress value={progress} className="h-1 mb-8" />}
+          {!isSubmitted && (
+            <motion.div
+              initial={{ scaleX: 0 }}
+              animate={{ scaleX: 1 }}
+              transition={{ duration: 0.5 }}
+            >
+              <Progress value={progress} className="h-1 mb-8" />
+            </motion.div>
+          )}
+          
           <div className="min-h-[400px]">
-            {" "}
-            {/* Prevent layout shift */}
             <AnimatePresence mode="wait">
               <motion.div
                 key={isSubmitted ? "results" : currentQuestionIndex}
-                initial={{ opacity: 1 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 1 }}
+                initial={{ opacity: 0, x: 50 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -50 }}
                 transition={{ duration: 0.3 }}
               >
                 {!isSubmitted ? (
@@ -165,26 +229,44 @@ export default function Quiz({
                         onClick={handlePreviousQuestion}
                         disabled={currentQuestionIndex === 0}
                         variant="ghost"
+                        className="space-x-2"
                       >
-                        <ChevronLeft className="mr-2 h-4 w-4" /> Previous
+                        <ChevronLeft className="h-4 w-4" />
+                        <span>Previous</span>
                       </Button>
-                      <span className="text-sm font-medium">
-                        {currentQuestionIndex + 1} / {questions.length}
-                      </span>
+                      
+                      <div className="flex flex-col items-center space-y-2">
+                        <span className="text-sm font-medium">
+                          Question {currentQuestionIndex + 1} of {questions.length}
+                        </span>
+                        <div className="flex items-center space-x-1 text-xs text-muted-foreground">
+                          <Keyboard className="h-3 w-3" />
+                          <span>Use arrow keys to navigate</span>
+                        </div>
+                      </div>
+                      
                       <Button
                         onClick={handleNextQuestion}
                         disabled={answers[currentQuestionIndex] === null}
                         variant="ghost"
+                        className="space-x-2"
                       >
-                        {currentQuestionIndex === questions.length - 1
-                          ? "Submit"
-                          : "Next"}{" "}
-                        <ChevronRight className="ml-2 h-4 w-4" />
+                        <span>
+                          {currentQuestionIndex === questions.length - 1
+                            ? "Submit"
+                            : "Next"}
+                        </span>
+                        <ChevronRight className="h-4 w-4" />
                       </Button>
                     </div>
                   </div>
                 ) : (
-                  <div className="space-y-8">
+                  <motion.div 
+                    className="space-y-8"
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.5 }}
+                  >
                     <QuizScore
                       correctAnswers={score ?? 0}
                       totalQuestions={questions.length}
@@ -192,22 +274,30 @@ export default function Quiz({
                     <div className="space-y-12">
                       <QuizReview questions={questions} userAnswers={answers} />
                     </div>
-                    <div className="flex justify-center space-x-4 pt-4">
+                    <motion.div 
+                      className="flex justify-center space-x-4 pt-4"
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.5 }}
+                    >
                       <Button
                         onClick={handleReset}
                         variant="outline"
-                        className="bg-muted hover:bg-muted/80 w-full"
+                        className="bg-muted hover:bg-muted/80 space-x-2"
                       >
-                        <RefreshCw className="mr-2 h-4 w-4" /> Reset Quiz
+                        <RefreshCw className="h-4 w-4" />
+                        <span>Try Again</span>
                       </Button>
                       <Button
                         onClick={clearPDF}
-                        className="bg-primary hover:bg-primary/90 w-full"
+                        variant="default"
+                        className="space-x-2"
                       >
-                        <FileText className="mr-2 h-4 w-4" /> Try Another PDF
+                        <FileText className="h-4 w-4" />
+                        <span>New PDF</span>
                       </Button>
-                    </div>
-                  </div>
+                    </motion.div>
+                  </motion.div>
                 )}
               </motion.div>
             </AnimatePresence>
