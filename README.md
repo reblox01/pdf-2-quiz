@@ -94,7 +94,7 @@ If you find this project valuable and would like to support its continued develo
   - [PayPal](https://paypal.me/soukoutari) 💳 - Flexible one-time contributions
   
 - 🌟 **Recurring Support** 
-  - [GitHub Sponsors](https://github.com/sponsors/arosck1) 💝 - Support ongoing development
+  - [GitHub Sponsors](https://github.com/sponsors/reblox01) 💝 - Support ongoing development
 
 Your support helps maintain this project and enables new features. Thank you! 🙏
 
