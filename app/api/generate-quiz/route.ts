@@ -3,7 +3,7 @@ import { google } from "@ai-sdk/google";
 import { streamObject } from "ai";
 import { z } from "zod";
 
-export const maxDuration = 300;
+export const maxDuration = 60;
 
 // Language schema
 const languageSchema = z.enum(["english", "arabic", "spanish", "french", "german", "chinese"]);

@@ -103,16 +103,16 @@ export default function ChatWithFiles() {
     }, 500);
 
     try {
-      const encodedFiles = await Promise.all(
-        files.map(async (file) => ({
-          name: file.name,
-          type: file.type,
-          data: await encodeFileAsBase64(file),
-        })),
-      );
+    const encodedFiles = await Promise.all(
+      files.map(async (file) => ({
+        name: file.name,
+        type: file.type,
+        data: await encodeFileAsBase64(file),
+      })),
+    );
       submit({ files: encodedFiles, difficulty, language });
-      const generatedTitle = await generateQuizTitle(encodedFiles[0].name);
-      setTitle(generatedTitle);
+    const generatedTitle = await generateQuizTitle(encodedFiles[0].name);
+    setTitle(generatedTitle);
     } finally {
       clearInterval(interval);
       setUploadProgress(100);
@@ -234,7 +234,6 @@ export default function ChatWithFiles() {
           </motion.div>
         )}
       </AnimatePresence>
-      
       <Card className="w-full max-w-md h-full border-0 sm:border sm:h-fit sm:my-8 relative overflow-hidden mx-auto shadow-lg">
         {(isLoading || uploadProgress > 0) && (
           <div className="absolute top-0 left-0 w-full h-1 bg-muted overflow-hidden">
@@ -248,22 +247,28 @@ export default function ChatWithFiles() {
         <CardHeader className="text-center space-y-6 px-6 pt-6 pb-4">
           <motion.div 
             className="mx-auto flex items-center justify-center space-x-2 text-muted-foreground"
-            animate={{ scale: isLoading ? 1.05 : 1 }}
-            transition={{ repeat: Infinity, duration: 2 }}
+            animate={{ 
+              scale: isLoading ? [1, 1.05, 1] : 1,
+              transition: {
+                duration: 2,
+                repeat: Infinity,
+                ease: "easeInOut"
+              }
+            }}
           >
-            <div className="rounded-full bg-primary/10 p-2">
+            <div className="rounded-full bg-primary/10 p-2 transition-colors hover:bg-primary/20">
               <FileUp className="h-6 w-6" />
             </div>
-            <Plus className="h-4 w-4" />
-            <div className="rounded-full bg-primary/10 p-2">
+            <Plus className="h-4 w-4 animate-pulse" />
+            <div className="rounded-full bg-primary/10 p-2 transition-colors hover:bg-primary/20">
               <Loader2 className={`h-6 w-6 ${isLoading ? 'animate-spin' : ''}`} />
             </div>
           </motion.div>
           <div className="space-y-2">
-            <CardTitle className="text-2xl font-bold">
+            <CardTitle className="text-2xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
               PDF Quiz Generator
             </CardTitle>
-            <CardDescription className="text-base">
+            <CardDescription className="text-base leading-relaxed">
               Upload a PDF to generate an interactive quiz based on its content
               using the <Link href="https://sdk.vercel.ai">AI SDK</Link> and{" "}
               <Link href="https://sdk.vercel.ai/providers/ai-sdk-providers/google-generative-ai">
@@ -292,7 +297,7 @@ export default function ChatWithFiles() {
                 accept="application/pdf"
                 className="absolute inset-0 opacity-0 cursor-pointer"
               />
-              {files.length > 0 ? (
+                {files.length > 0 ? (
                 <div className="flex flex-col items-center gap-2">
                   <div className="h-10 w-10 rounded-full bg-green-500/10 flex items-center justify-center">
                     <FileUp className="h-5 w-5 text-green-500" />
