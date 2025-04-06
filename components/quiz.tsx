@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -10,15 +10,20 @@ import {
   RefreshCw,
   FileText,
   Keyboard,
+  BrainCircuit,
+  RotateCcw,
+  Shuffle,
 } from "lucide-react";
 import QuizScore from "./score";
 import QuizReview from "./quiz-overview";
 import { Question } from "@/lib/schemas";
+import { Badge } from "@/components/ui/badge";
 
 type QuizProps = {
   questions: Question[];
   clearPDF: () => void;
   title: string;
+  regenerateQuiz?: () => void;
 };
 
 const QuestionCard: React.FC<{
@@ -103,6 +108,7 @@ export default function Quiz({
   questions,
   clearPDF,
   title = "Quiz",
+  regenerateQuiz,
 }: QuizProps) {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<string[]>(
@@ -111,6 +117,23 @@ export default function Quiz({
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [score, setScore] = useState<number | null>(null);
   const [progress, setProgress] = useState(0);
+  
+  // Determine difficulty level based on number of questions
+  const difficultyLevel = useMemo(() => {
+    if (questions.length <= 10) return "easy";
+    if (questions.length <= 20) return "normal";
+    return "hard";
+  }, [questions.length]);
+  
+  // Get badge color based on difficulty
+  const getDifficultyColor = (diff: string) => {
+    switch (diff) {
+      case "easy": return "bg-green-500/10 text-green-500";
+      case "normal": return "bg-blue-500/10 text-blue-500";
+      case "hard": return "bg-red-500/10 text-red-500";
+      default: return "";
+    }
+  };
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -186,14 +209,28 @@ export default function Quiz({
   return (
     <div className="min-h-screen bg-background text-foreground">
       <main className="container mx-auto px-4 py-12 max-w-4xl">
-        <motion.h1 
-          className="text-3xl font-bold mb-8 text-center text-foreground"
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
-          {title}
-        </motion.h1>
+        <div className="flex flex-col sm:flex-row items-center justify-between mb-4">
+          <motion.h1 
+            className="text-3xl font-bold text-center text-foreground"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            {title}
+          </motion.h1>
+          
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3, duration: 0.5 }}
+            className="flex items-center mt-2 sm:mt-0"
+          >
+            <BrainCircuit className="h-4 w-4 mr-2" />
+            <Badge className={getDifficultyColor(difficultyLevel)}>
+              {difficultyLevel.charAt(0).toUpperCase() + difficultyLevel.slice(1)} · {questions.length} Questions
+            </Badge>
+          </motion.div>
+        </div>
         
         <div className="relative">
           {!isSubmitted && (
@@ -275,7 +312,7 @@ export default function Quiz({
                       <QuizReview questions={questions} userAnswers={answers} />
                     </div>
                     <motion.div 
-                      className="flex justify-center space-x-4 pt-4"
+                      className="flex flex-wrap justify-center gap-4 pt-4"
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.5 }}
@@ -288,6 +325,18 @@ export default function Quiz({
                         <RefreshCw className="h-4 w-4" />
                         <span>Try Again</span>
                       </Button>
+                      
+                      {regenerateQuiz && (
+                        <Button
+                          onClick={regenerateQuiz}
+                          variant="secondary"
+                          className="space-x-2"
+                        >
+                          <Shuffle className="h-4 w-4" />
+                          <span>New Questions</span>
+                        </Button>
+                      )}
+                      
                       <Button
                         onClick={clearPDF}
                         variant="default"

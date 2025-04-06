@@ -1,13 +1,41 @@
-import { questionSchema, questionsSchema } from "@/lib/schemas";
+import { questionSchema, questionsSchema, difficultySchema, getQuestionCountByDifficulty } from "@/lib/schemas";
 import { google } from "@ai-sdk/google";
 import { streamObject } from "ai";
+import { z } from "zod";
 
 export const maxDuration = 300;
 
+// Language schema
+const languageSchema = z.enum(["english", "arabic", "spanish", "french", "german", "chinese"]);
+type Language = z.infer<typeof languageSchema>;
+
+// Language display names for prompts
+const languageNames: Record<Language, string> = {
+  english: "English",
+  arabic: "Arabic",
+  spanish: "Spanish",
+  french: "French",
+  german: "German",
+  chinese: "Chinese"
+};
+
 export async function POST(req: Request) {
   try {
-    const { files } = await req.json();
+    const { files, difficulty = "normal", language = "english" } = await req.json();
     const firstFile = files[0].data;
+    
+    // Validate and parse difficulty
+    const parsedDifficulty = difficultySchema.safeParse(difficulty);
+    const validDifficulty = parsedDifficulty.success ? parsedDifficulty.data : "normal";
+    
+    // Validate and parse language
+    const parsedLanguage = languageSchema.safeParse(language);
+    const validLanguage = parsedLanguage.success ? parsedLanguage.data : "english";
+    
+    // Get question count range based on difficulty
+    const { min, max } = getQuestionCountByDifficulty(validDifficulty);
+    // Random number of questions within the range
+    const questionCount = Math.floor(Math.random() * (max - min + 1)) + min;
 
     // Create a new TransformStream for handling the data
     const stream = new TransformStream();
@@ -21,15 +49,28 @@ export async function POST(req: Request) {
           messages: [
             {
               role: "system",
-              content:
-                "You are a teacher. Your job is to take a document, and create a multiple choice test (with 4 questions) based on the content of the document. Each option should be roughly equal in length. Focus on the most important concepts from the document.",
+              content: `You are a teacher. Your job is to take a document, and create a multiple choice test with ${questionCount} questions based on the content of the document in ${languageNames[validLanguage]} language. 
+              
+Difficulty level: ${validDifficulty.toUpperCase()}
+Output language: ${languageNames[validLanguage].toUpperCase()}
+
+For the ${validDifficulty} difficulty level:
+${validDifficulty === "easy" ? 
+  "- Focus on basic concepts and straightforward information explicitly stated in the text.\n- Keep questions simple and direct.\n- Make distractors clearly different from the correct answer." : 
+  validDifficulty === "normal" ? 
+  "- Include a mix of straightforward and moderately challenging questions.\n- Test understanding of concepts beyond simple recall.\n- Make distractors somewhat plausible but distinguishable." : 
+  "- Create challenging questions that require deep understanding of the material.\n- Include questions that require synthesis of multiple concepts.\n- Make distractors very plausible and require careful analysis to distinguish from the correct answer."}
+
+Each option should be roughly equal in length. Each question should have exactly 4 options (A, B, C, D).
+
+IMPORTANT: Regardless of the language of the input document, ALL your output must be in ${languageNames[validLanguage]} only.`,
             },
             {
               role: "user",
               content: [
                 {
                   type: "text",
-                  text: "Create a multiple choice test based on this document. Make sure to extract the key concepts.",
+                  text: `Create a ${validDifficulty} difficulty multiple choice test with ${questionCount} questions based on this document in ${languageNames[validLanguage]} language. Make sure to extract the key concepts.`,
                 },
                 {
                   type: "file",
@@ -41,7 +82,7 @@ export async function POST(req: Request) {
           ],
           schema: questionSchema,
           output: "array",
-          temperature: 0.7,
+          temperature: validDifficulty === "easy" ? 0.3 : validDifficulty === "normal" ? 0.5 : 0.7,
           onFinish: ({ object }) => {
             const res = questionsSchema.safeParse(object);
             if (res.error) {

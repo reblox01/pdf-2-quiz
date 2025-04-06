@@ -20,7 +20,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning className={`${geist.className}`}>
       <body>
-        <ThemeProvider attribute="class" enableSystem forcedTheme="dark">
+        <ThemeProvider attribute="class" enableSystem defaultTheme="dark">
           <Toaster position="top-center" richColors />
           {children}
         </ThemeProvider>
