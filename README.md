@@ -1,6 +1,6 @@
 # PDF2Quiz - AI-Powered Quiz Generator
 
-![PDF2Quiz Screenshot](public\preview.png)
+![PDF2Quiz Screenshot](https://github.com/reblox01/pdf-2-quiz/blob/main/public/preview.png)
 
 ## Overview
 
