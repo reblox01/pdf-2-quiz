@@ -7,9 +7,19 @@ import { Geist } from "next/font/google";
 const geist = Geist({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://ai-sdk-preview-pdf-support.vercel.app"),
-  title: "PDF Support Preview",
-  description: "Experimental preview of PDF support with the AI SDK",
+  metadataBase: new URL("https://pdf2quiiz.vercel.app"),
+  title: "PDF2Quiz - AI-Powered Quiz Generator",
+  description: "Generate intelligent quizzes from your PDFs using AI. Create custom quizzes with adjustable difficulty levels and multiple language support.",
+  openGraph: {
+    title: "PDF2Quiz - AI-Powered Quiz Generator",
+    description: "Generate intelligent quizzes from your PDFs using AI. Create custom quizzes with adjustable difficulty levels and multiple language support.",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "PDF2Quiz - AI-Powered Quiz Generator",
+    description: "Generate intelligent quizzes from your PDFs using AI. Create custom quizzes with adjustable difficulty levels and multiple language support.",
+  }
 };
 
 export default function RootLayout({
