@@ -6,7 +6,7 @@
 
 PDF2Quiz is an AI-powered application that transforms any PDF document into an interactive quiz. Using Google's Gemini Pro AI model through the Vercel AI SDK, this tool automatically generates intelligent, multiple-choice questions based on the content of uploaded PDF documents.
 
-[Live Demo](https://pdf2puiiz.vercel.app) | [GitHub Repository](https://github.com/reblox01/pdf-2-quiz.git)
+[Live Demo](https://pdf2quiiz.vercel.app) | [GitHub Repository](https://github.com/reblox01/pdf-2-quiz.git)
 
 ## Features
 
