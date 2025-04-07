@@ -234,7 +234,7 @@ export default function ChatWithFiles() {
           </motion.div>
         )}
       </AnimatePresence>
-      <Card className="w-full max-w-md h-full border-0 sm:border sm:h-fit sm:my-8 relative overflow-hidden mx-auto shadow-lg">
+      <Card className="w-full max-w-md h-full border-0 sm:border sm:h-fit sm:my-8 relative overflow-hidden mx-auto shadow-lg mb-20 sm:mb-12">
         {(isLoading || uploadProgress > 0) && (
           <div className="absolute top-0 left-0 w-full h-1 bg-muted overflow-hidden">
             <div
