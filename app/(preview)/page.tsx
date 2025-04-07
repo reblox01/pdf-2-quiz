@@ -73,8 +73,8 @@ export default function ChatWithFiles() {
         toast.error(`${file.name} is not a PDF file`);
         return false;
       }
-      if (file.size > 20 * 1024 * 1024) {
-        toast.error(`${file.name} is larger than 20MB`);
+      if (file.size > 15 * 1024 * 1024) {
+        toast.error(`${file.name} is larger than 15MB`);
         return false;
       }
       return true;
@@ -229,7 +229,7 @@ export default function ChatWithFiles() {
             <FileUp className="h-12 w-12 mb-4 animate-bounce" />
             <div className="text-xl font-semibold">Drop your PDF here</div>
             <div className="text-sm dark:text-zinc-400 text-zinc-500">
-              Maximum size: 20MB
+              Maximum size: 15MB
             </div>
           </motion.div>
         )}
@@ -318,7 +318,7 @@ export default function ChatWithFiles() {
                     Drop your PDF here or click to browse
                   </p>
                   <p className="text-xs text-muted-foreground mt-1 max-w-xs text-center">
-                    Upload a PDF document to generate a quiz based on its content. Maximum file size: 20MB
+                    Upload a PDF document to generate a quiz based on its content. Maximum file size: 15MB
                   </p>
                 </div>
               )}

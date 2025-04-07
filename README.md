@@ -10,7 +10,7 @@ PDF2Quiz is an AI-powered application that transforms any PDF document into an i
 
 ## Features
 
-- **PDF Processing**: Upload any PDF document (up to 20MB) and transform it into a quiz
+- **PDF Processing**: Upload any PDF document (up to 15MB) and transform it into a quiz
 - **Multiple Language Support**: Generate quizzes in 6 languages (English, Arabic, Spanish, French, German, Chinese)
 - **Adjustable Difficulty Levels**: Choose between Easy, Normal, and Hard difficulty settings
 - **Dynamic Question Count**: Automatically adjusts number of questions based on difficulty level
